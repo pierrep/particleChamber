@@ -2,4 +2,6 @@ bin/libs/
 bin/particleChamber
 bin/readMe.txt
 obj/
-
+bin/particleChamber_debug
+build/
+particleChamber.qbs.user

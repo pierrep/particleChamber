@@ -1,7 +1,17 @@
 <keyframes>
     <key>
-        <flag />
-        <time>00:00:59:881</time>
-        <value>0.675000012</value>
+        <flag>OFF</flag>
+        <time>00:00:00:000</time>
+        <value>0.725000024</value>
+    </key>
+    <key>
+        <flag>ON</flag>
+        <time>00:02:00:140</time>
+        <value>0.725000024</value>
+    </key>
+    <key>
+        <flag>OFF</flag>
+        <time>00:05:00:012</time>
+        <value>0.524999976</value>
     </key>
 </keyframes>

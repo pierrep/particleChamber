@@ -1,7 +1,62 @@
 <keyframes>
     <key>
-        <flag />
+        <flag>0</flag>
+        <time>00:00:00:000</time>
+        <value>0.560975611</value>
+    </key>
+    <key>
+        <flag>8</flag>
+        <time>00:00:30:018</time>
+        <value>0.571428537</value>
+    </key>
+    <key>
+        <flag>16</flag>
         <time>00:00:59:881</time>
         <value>0.756097555</value>
+    </key>
+    <key>
+        <flag>24</flag>
+        <time>00:01:30:048</time>
+        <value>0.571428537</value>
+    </key>
+    <key>
+        <flag>0</flag>
+        <time>00:02:00:065</time>
+        <value>0.666666627</value>
+    </key>
+    <key>
+        <flag>8</flag>
+        <time>00:04:00:022</time>
+        <value>0.571428537</value>
+    </key>
+    <key>
+        <flag>16</flag>
+        <time>00:04:15:016</time>
+        <value>0.452380955</value>
+    </key>
+    <key>
+        <flag>24</flag>
+        <time>00:04:30:086</time>
+        <value>0.714285731</value>
+    </key>
+    <key>
+        <flag>32</flag>
+        <time>00:04:45:049</time>
+        <value>0.690476179</value>
+    </key>
+    <key>
+        <flag>0</flag>
+        <time>00:05:00:012</time>
+        <value>0.571428537</value>
+    </key>
+    <key>
+        <flag>32</flag>
+        <time>00:06:00:057</time>
+        <value>0.642857134</value>
+    </key>
+    <key>
+        <flag>0</flag>
+        <time>00:07:00:015</time>
+        <value>0.571428537</value>
     </key>
 </keyframes>

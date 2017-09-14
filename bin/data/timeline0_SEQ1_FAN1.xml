@@ -1,7 +1,27 @@
 <keyframes>
     <key>
-        <flag>test</flag>
-        <time>00:00:59:996</time>
-        <value>0.675000012</value>
+        <flag>ON</flag>
+        <time>00:00:00:001</time>
+        <value>1.000000000</value>
+    </key>
+    <key>
+        <flag />
+        <time>00:00:57:899</time>
+        <value>0.891304374</value>
+    </key>
+    <key>
+        <flag>OFF</flag>
+        <time>00:03:00:187</time>
+        <value>0.471739054</value>
+    </key>
+    <key>
+        <flag>ON</flag>
+        <time>00:05:00:000</time>
+        <value>0.239130437</value>
+    </key>
+    <key>
+        <flag>OFF</flag>
+        <time>00:06:00:000</time>
+        <value>0.826086938</value>
     </key>
 </keyframes>

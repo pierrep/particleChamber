@@ -14,6 +14,7 @@ void ofApp::exit()
 void ofApp::setup(){
     ofSetFrameRate(44);
     ofBackground(38);
+    ofSetEscapeQuitsApp(true);
 
     //zero our DMX value array
     memset( dmxData, 0, DMX_DATA_LENGTH );
@@ -31,7 +32,7 @@ void ofApp::setup(){
 
     numLights = 6;
     numSequences = 4;
-    freq = 0;
+    freq = 32;
 
     ofLogNotice() << "ofxGenericDmx addon version: " << ofxGenericDmx::VERSION_MAJOR << "." << ofxGenericDmx::VERSION_MINOR;
 
@@ -56,9 +57,10 @@ void ofApp::setup(){
 void ofApp::bangFired(ofxTLBangEventArgs& args){
     ofLogVerbose() << args.track->getName() << " fired: " << args.flag;
 
-    if(args.track->getName() == "SEQ1_STROBE")
+    if(args.track->getName() == "SEQ4_STROBE")
     {
         freq = stof(args.flag);
+        cout << "freq=" << freq << endl;
     }
 }
 
@@ -69,7 +71,7 @@ void ofApp::update(){
     //asign our colors to the right dmx channels
     //int val = (sin(/500.0f) +1.0f) * 128.0f;
 
-    int val = sin((ofGetElapsedTimeMillis()/200.0f)*freq) > 0 ? 255:0;
+    int val = sin((ofGetElapsedTimeMillis()/200.0f)*(float)freq) > 0 ? 255:0;
 
     //cout << "val = " << val << endl;
 
