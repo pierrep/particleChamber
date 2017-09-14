@@ -3,9 +3,11 @@
 //--------------------------------------------------------------
 void ofApp::exit()
 {
+    if(dmxDevice->isOpen()) {
     memset( dmxData, 0, DMX_DATA_LENGTH );
     dmxDevice->writeDmx( dmxData, DMX_DATA_LENGTH );
     dmxDevice->close();
+    }
 }
 
 //--------------------------------------------------------------
