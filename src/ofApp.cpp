@@ -1,4 +1,10 @@
 #include "ofApp.h"
+#include <wiringPi.h>
+
+#define RELAY1 0
+#define RELAY2 2
+#define PIR1 1
+#define PIR2 3
 
 //--------------------------------------------------------------
 void ofApp::exit()
@@ -12,7 +18,8 @@ void ofApp::exit()
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    ofSetFrameRate(44);
+	ofSetVerticalSync(false);
+    ofSetFrameRate(80);
     ofBackground(38);
     ofSetEscapeQuitsApp(true);
 
@@ -51,27 +58,55 @@ void ofApp::setup(){
     timeline.setLoopType(OF_LOOP_NONE);
 
     ofAddListener(timeline.events().bangFired, this, &ofApp::bangFired);
+    
+    wiringPiSetup () ;
+    pinMode (RELAY1, OUTPUT);
+    pinMode (RELAY2, OUTPUT);
+    
+    pinMode(PIR1,INPUT);
+    pinMode(PIR2,INPUT);
 }
 
 //--------------------------------------------------------------
 void ofApp::bangFired(ofxTLBangEventArgs& args){
     ofLogVerbose() << args.track->getName() << " fired: " << args.flag;
 
-    if(args.track->getName() == "SEQ4_STROBE")
+    if(args.track->getName() == "SEQ1_STROBE")
     {
         freq = stof(args.flag);
         cout << "freq=" << freq << endl;
     }
+    
+    if(args.track->getName() == "SEQ1_FAN1")
+    {
+		if(args.flag == "ON")
+		{
+			digitalWrite (RELAY1, HIGH);
+		} else {
+			digitalWrite (RELAY1, LOW);
+		}
+	}
+	
+     if(args.track->getName() == "SEQ1_FAN2")
+    {
+		if(args.flag == "ON")
+		{
+			digitalWrite (RELAY2, HIGH);
+		} else {
+			digitalWrite (RELAY2, LOW);
+		}
+	} 	   
 }
 
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    //asign our colors to the right dmx channels
-    //int val = (sin(/500.0f) +1.0f) * 128.0f;
+	int pir1 = digitalRead(PIR1);
+	
+	//cout << "PIR1 = " << pir1 << endl;
 
-    int val = sin((ofGetElapsedTimeMillis()/200.0f)*(float)freq) > 0 ? 255:0;
+    int val = sin(((double) ofGetElapsedTimeMillis()/200.0)*(double)freq) > 0 ? 255:0;
 
     //cout << "val = " << val << endl;
 
@@ -99,11 +134,13 @@ void ofApp::draw(){
     //ofDrawBitmapString("channels = 1 3 5 7 9 11",20,20);
 
     timeline.draw();
+    
+    ofDrawBitmapString(ofToString(ofGetFrameRate()),20,ofGetHeight()-40);
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+	if(key =='h') timeline.toggleShow();
 }
 
 //--------------------------------------------------------------
