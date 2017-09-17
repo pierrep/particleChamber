@@ -103,8 +103,9 @@ void ofApp::bangFired(ofxTLBangEventArgs& args){
 void ofApp::update(){
 
 	int pir1 = digitalRead(PIR1);
-	
-	//cout << "PIR1 = " << pir1 << endl;
+	int pir2 = digitalRead(PIR2);
+	cout << "PIR1 = " << pir1 << endl;
+	cout << "PIR2 = " << pir2 << endl;
 
     int val = sin(((double) ofGetElapsedTimeMillis()/200.0)*(double)freq) > 0 ? 255:0;
 
