@@ -5,68 +5,68 @@
         <value>0.225000024</value>
     </key>
     <key>
-        <flag>8</flag>
+        <flag>1</flag>
         <time>00:01:00:000</time>
         <value>0.800000012</value>
     </key>
     <key>
-        <flag>16</flag>
-        <time>00:01:15:032</time>
+        <flag>2</flag>
+        <time>00:01:15:000</time>
         <value>0.725000024</value>
     </key>
     <key>
-        <flag>24</flag>
-        <time>00:01:30:034</time>
+        <flag>3</flag>
+        <time>00:01:30:000</time>
         <value>0.524999976</value>
     </key>
     <key>
-        <flag>32</flag>
-        <time>00:01:45:060</time>
+        <flag>4</flag>
+        <time>00:01:45:000</time>
         <value>0.750000000</value>
     </key>
     <key>
         <flag>0</flag>
-        <time>00:02:00:011</time>
+        <time>00:02:00:000</time>
         <value>0.625000000</value>
     </key>
     <key>
-        <flag>8</flag>
-        <time>00:03:00:095</time>
+        <flag>1</flag>
+        <time>00:03:00:000</time>
         <value>0.524999976</value>
     </key>
     <key>
-        <flag>16</flag>
-        <time>00:03:20:051</time>
+        <flag>2</flag>
+        <time>00:03:20:000</time>
         <value>0.725000024</value>
     </key>
     <key>
-        <flag>24</flag>
-        <time>00:03:40:074</time>
+        <flag>3</flag>
+        <time>00:03:40:000</time>
         <value>0.574999988</value>
     </key>
     <key>
         <flag>0</flag>
-        <time>00:04:00:049</time>
+        <time>00:04:00:000</time>
         <value>0.649999976</value>
     </key>
     <key>
-        <flag>16</flag>
-        <time>00:05:00:090</time>
+        <flag>2</flag>
+        <time>00:05:00:000</time>
         <value>0.774999976</value>
     </key>
     <key>
-        <flag>24</flag>
-        <time>00:05:20:050</time>
+        <flag>3</flag>
+        <time>00:05:20:000</time>
         <value>0.649999976</value>
     </key>
     <key>
-        <flag>32</flag>
-        <time>00:05:40:010</time>
+        <flag>4</flag>
+        <time>00:05:40:000</time>
         <value>0.625000000</value>
     </key>
     <key>
         <flag>0</flag>
-        <time>00:06:00:165</time>
+        <time>00:06:00:000</time>
         <value>0.649999976</value>
     </key>
 </keyframes>

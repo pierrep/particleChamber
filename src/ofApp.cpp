@@ -11,13 +11,18 @@
 //--------------------------------------------------------------
 void ofApp::exit()
 {
+	for(int channel=1; channel <= numLights*2; channel+=2) {
+        dmxData[channel] = 0;
+        dmxData[channel + 1] = 11;
+    }
+    
     if(dmxDevice->isOpen()) {
 		memset( dmxData, 0, DMX_DATA_LENGTH );
 		dmxDevice->writeDmx( dmxData, DMX_DATA_LENGTH );
 		dmxDevice->close();
     }
     #ifdef TARGET_RASPBERRY_PI
-    // Turn on fans
+    // Turn off fans
     digitalWrite (RELAY1, LOW);
     digitalWrite (RELAY2, LOW);
     #endif
@@ -43,20 +48,14 @@ void ofApp::setup(){
             ofLogError() << "DMX device unable to open";
         }
     }
-
-	int bufferSize = 512;
-	sampleRate = 44100;
-	soundStream.printDeviceList();
-	//soundStream.setDeviceID(1); 	//note some devices are input only and some are output only 
-	soundStream.setup(this, 2, 0, sampleRate, bufferSize, 4);
 	
     numLights = 6;
     numSequences = 4;
     freq = 0;
     lightOutput = 0;
     sequence = ofRandom(1,numSequences + 1);
-
-    ofLogNotice() << "ofxGenericDmx addon version: " << ofxGenericDmx::VERSION_MAJOR << "." << ofxGenericDmx::VERSION_MINOR;
+    
+	loadXmlSettings();
 
     timeline.setup();
     timeline.setDurationInSeconds(60*8);
@@ -69,6 +68,7 @@ void ofApp::setup(){
 
     timeline.enableSnapToOtherKeyframes(false);
     timeline.setLoopType(OF_LOOP_NONE);
+    timeline.setSpacebarTogglePlay(true);
 
     ofAddListener(timeline.events().bangFired, this, &ofApp::bangFired);
     ofAddListener(timeline.events().playbackEnded, this, &ofApp::playBackEnded);
@@ -79,6 +79,10 @@ void ofApp::setup(){
     pinMode (RELAY2, OUTPUT);
     pinMode(PIR1,INPUT);
     pinMode(PIR2,INPUT);
+    
+    // Turn off fans
+    digitalWrite (RELAY1, LOW);
+    digitalWrite (RELAY2, LOW);    
 #endif
 
 	timeline.toggleShow();
@@ -106,7 +110,6 @@ void ofApp::bangFired(ofxTLBangEventArgs& args){
     ofLogVerbose() << args.track->getName() << " fired: " << args.flag;
 
     int seqnum = stoi(args.track->getName().substr(3,1),nullptr);
-    //cout << "seqnum = " << seqnum << endl;
 
     if(sequence == seqnum) {
 
@@ -114,8 +117,7 @@ void ofApp::bangFired(ofxTLBangEventArgs& args){
         {
             if(!(args.flag.empty())) {
                 freq = stof(args.flag);
-                phaseAdder = (freq / (float) sampleRate) * TWO_PI;
-                cout << "freq=" << freq << " phaseAdder = " << phaseAdder << endl;
+                cout << "freq=" << freq << endl;
             }
         }
 
@@ -155,28 +157,46 @@ void ofApp::update(){
     pir2 = digitalRead(PIR2);
 #endif
 
-
     //cout << "PIR1 = " << pir1 << endl;
     //cout << "PIR2 = " << pir2 << endl;
 
-    if((pir1 == 1) || (pir2 == 1)) {
-        if(!(timeline.getIsPlaying())) {
-            timeline.play();
-        }
-    }
-
-    //lightOutput = sin(((double) ofGetElapsedTimeMillis()/200.0)*(double)freq) > 0 ? 255:0;
-    
-    if(freq == 0) lightOutput = 255;
-
-    //cout << "lightOutput = " << lightOutput << endl;
-
+	if(!(timeline.getIsPlaying())) {
+		if((pir1 == 1) || (pir2 == 1)) {
+            int x = 0;
+            //timeline.play();
+        } else {
+			lightOutput = 0;
+		}   
+    } else {
+		if(freq == 0) {
+			lightOutput = 255;
+			strobe = 11;
+		} else {
+			lightOutput = 255;
+			int index = freq - 1;
+			strobe = strobeVal[index];
+		}
+	}
 
     for(int channel=1; channel <= numLights*2; channel+=2) {
         dmxData[channel] = lightOutput;
-        dmxData[channel + 1] = 11;
+        dmxData[channel + 1] = strobe;
     }
 
+	sendDMX();
+}
+
+//--------------------------------------------------------------
+void ofApp::draw(){
+
+    timeline.draw();
+    
+    ofDrawBitmapString(ofToString(ofGetFrameRate()),20,ofGetHeight()-40);
+}
+
+//--------------------------------------------------------------
+void ofApp::sendDMX() 
+{
     //force first byte to zero (it is not a channel but DMX type info - start code)
     dmxData[0] = 0;
 
@@ -186,45 +206,51 @@ void ofApp::update(){
     else{
         //send the data to the dmx interface
         dmxDevice->writeDmx( dmxData, DMX_DATA_LENGTH );
-    }
+    }	
 }
 
 //--------------------------------------------------------------
-void ofApp::draw(){
-    //ofSetColor(0);
-    //ofDrawBitmapString("channels = 1 3 5 7 9 11",20,20);
-
-    timeline.draw();
-    
-    ofDrawBitmapString(ofToString(ofGetFrameRate()),20,ofGetHeight()-40);
-}
-
-//--------------------------------------------------------------
-void ofApp::audioOut(float * output, int bufferSize, int nChannels)
+void ofApp::loadXmlSettings()
 {
-	// sin (n) seems to have trouble when n is very large, so we
-	// keep phase in the range of 0-TWO_PI like this:
-	while (phase > TWO_PI){
-		phase -= TWO_PI;
+	if( xml.load("settings.xml") ){
+		ofLogNotice() << "Loaded settings.xml";
+	} else {
+		ofLogError() << "Failed to load settings.xml";
 	}
 
-	for (int i = 0; i < bufferSize; i++){
-		phase += phaseAdder;
+    if(xml.exists("//STROBE1")) {
+        strobeVal[0] = xml.getValue<int>("//STROBE1");
+    } else {
+        strobeVal[0] = 50;
+    }
 
-		lightOutput = sin(phase) > 0.0f?255.0f:0.0f;  
-			output[i*nChannels    ] = 0;
-			output[i*nChannels + 1] = 0;
-	}
+    if(xml.exists("//STROBE2")) {
+        strobeVal[1] = xml.getValue<int>("//STROBE2");
+    } else {
+        strobeVal[1] = 100;
+    }
 
+    if(xml.exists("//STROBE3")) {
+        strobeVal[2] = xml.getValue<int>("//STROBE3");
+    } else {
+        strobeVal[2] = 150;
+    }
+
+    if(xml.exists("//STROBE4")) {
+        strobeVal[3] = xml.getValue<int>("//STROBE4");
+    } else {
+        strobeVal[3] = 220;
+    }
+
+cout << "strobeVal:" << strobeVal[0] << " " << strobeVal[1] << " " << strobeVal[2] << " " << strobeVal[3] << " " << endl;
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 	if(key =='h') {		
 		timeline.toggleShow();
-		//if(timeline.getIsShowing()) setWindowShape(1600,900); 
-		//else setWindowShape(320,240);
 	}
+
 }
 
 //--------------------------------------------------------------

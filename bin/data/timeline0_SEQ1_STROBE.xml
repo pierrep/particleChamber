@@ -5,8 +5,8 @@
         <value>0.725000024</value>
     </key>
     <key>
-        <flag>32</flag>
-        <time>00:01:29:979</time>
+        <flag>4</flag>
+        <time>00:01:30:000</time>
         <value>0.375000000</value>
     </key>
     <key>
@@ -15,22 +15,22 @@
         <value>0.675000012</value>
     </key>
     <key>
-        <flag>8</flag>
-        <time>00:04:00:042</time>
+        <flag>1</flag>
+        <time>00:04:00:000</time>
         <value>1.000000000</value>
     </key>
     <key>
-        <flag>16</flag>
+        <flag>2</flag>
         <time>00:04:30:000</time>
         <value>0.750000000</value>
     </key>
     <key>
-        <flag>24</flag>
+        <flag>3</flag>
         <time>00:05:00:000</time>
         <value>0.024999976</value>
     </key>
     <key>
-        <flag>32</flag>
+        <flag>4</flag>
         <time>00:05:30:000</time>
         <value>0.725000024</value>
     </key>

@@ -29,7 +29,8 @@ class ofApp : public ofBaseApp{
         ofxTimeline timeline;
         void bangFired(ofxTLBangEventArgs& args);
         void playBackEnded(ofxTLPlaybackEventArgs& args);
-        void audioOut(float * output, int bufferSize, int nChannels);
+		void sendDMX();
+		void loadXmlSettings();
 
         //pointer to our Enntec DMX USB Pro object
         DmxDevice* dmxDevice;
@@ -45,12 +46,9 @@ class ofApp : public ofBaseApp{
         int pir1, pir2;
         int sequence;
         
-        int	 sampleRate;
-		float 	targetFrequency;
-		float 	phase;
-		float 	phaseAdder;
-		float 	phaseAdderTarget;     
-		
-		ofSoundStream soundStream;   
+        ofXml xml;
+        int strobeVal[4];
+        int strobe;
+         
 		
 };
