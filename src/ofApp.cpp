@@ -12,10 +12,15 @@
 void ofApp::exit()
 {
     if(dmxDevice->isOpen()) {
-    memset( dmxData, 0, DMX_DATA_LENGTH );
-    dmxDevice->writeDmx( dmxData, DMX_DATA_LENGTH );
-    dmxDevice->close();
+		memset( dmxData, 0, DMX_DATA_LENGTH );
+		dmxDevice->writeDmx( dmxData, DMX_DATA_LENGTH );
+		dmxDevice->close();
     }
+    #ifdef TARGET_RASPBERRY_PI
+    // Turn on fans
+    digitalWrite (RELAY1, LOW);
+    digitalWrite (RELAY2, LOW);
+    #endif
 }
 
 //--------------------------------------------------------------
@@ -39,10 +44,17 @@ void ofApp::setup(){
         }
     }
 
+	int bufferSize = 512;
+	sampleRate = 44100;
+	soundStream.printDeviceList();
+	//soundStream.setDeviceID(1); 	//note some devices are input only and some are output only 
+	soundStream.setup(this, 2, 0, sampleRate, bufferSize, 4);
+	
     numLights = 6;
     numSequences = 4;
-    freq = 32;
-    sequence = 3;
+    freq = 0;
+    lightOutput = 0;
+    sequence = ofRandom(1,numSequences + 1);
 
     ofLogNotice() << "ofxGenericDmx addon version: " << ofxGenericDmx::VERSION_MAJOR << "." << ofxGenericDmx::VERSION_MINOR;
 
@@ -54,8 +66,6 @@ void ofApp::setup(){
         timeline.addFlags("SEQ"+ofToString(i)+"_FAN2");
         timeline.addFlags("SEQ"+ofToString(i)+"_STROBE");
     }
-
-
 
     timeline.enableSnapToOtherKeyframes(false);
     timeline.setLoopType(OF_LOOP_NONE);
@@ -70,14 +80,19 @@ void ofApp::setup(){
     pinMode(PIR1,INPUT);
     pinMode(PIR2,INPUT);
 #endif
+
+	timeline.toggleShow();
+	timeline.play();
+	
+	cout << "New sequence = " << sequence << endl;
 }
 
 //--------------------------------------------------------------
 void ofApp::playBackEnded(ofxTLPlaybackEventArgs& args) {
     cout << "Playback ended" << endl;
 
-    int newseq = 0;
-    while(newseq != sequence) {
+    int newseq = ofRandom(1,numSequences + 1);
+    while(newseq == sequence) {
         newseq = ofRandom(1,numSequences + 1);
     }
 
@@ -99,7 +114,8 @@ void ofApp::bangFired(ofxTLBangEventArgs& args){
         {
             if(!(args.flag.empty())) {
                 freq = stof(args.flag);
-                cout << "freq=" << freq << endl;
+                phaseAdder = (freq / (float) sampleRate) * TWO_PI;
+                cout << "freq=" << freq << " phaseAdder = " << phaseAdder << endl;
             }
         }
 
@@ -139,6 +155,7 @@ void ofApp::update(){
     pir2 = digitalRead(PIR2);
 #endif
 
+
     //cout << "PIR1 = " << pir1 << endl;
     //cout << "PIR2 = " << pir2 << endl;
 
@@ -148,20 +165,22 @@ void ofApp::update(){
         }
     }
 
-    int val = sin(((double) ofGetElapsedTimeMillis()/200.0)*(double)freq) > 0 ? 255:0;
+    //lightOutput = sin(((double) ofGetElapsedTimeMillis()/200.0)*(double)freq) > 0 ? 255:0;
+    
+    if(freq == 0) lightOutput = 255;
 
-    //cout << "val = " << val << endl;
+    //cout << "lightOutput = " << lightOutput << endl;
 
 
     for(int channel=1; channel <= numLights*2; channel+=2) {
-        dmxData[channel] = val;
+        dmxData[channel] = lightOutput;
         dmxData[channel + 1] = 11;
     }
 
     //force first byte to zero (it is not a channel but DMX type info - start code)
     dmxData[0] = 0;
 
-    if ( ! dmxDevice || ! dmxDevice->isOpen() ) {
+    if ( ! dmxDevice || ! dmxDevice->isOpen() ) {   
         ofLogVerbose() << "Not updating, enttec device is not open.";
     }
     else{
@@ -181,8 +200,31 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
+void ofApp::audioOut(float * output, int bufferSize, int nChannels)
+{
+	// sin (n) seems to have trouble when n is very large, so we
+	// keep phase in the range of 0-TWO_PI like this:
+	while (phase > TWO_PI){
+		phase -= TWO_PI;
+	}
+
+	for (int i = 0; i < bufferSize; i++){
+		phase += phaseAdder;
+
+		lightOutput = sin(phase) > 0.0f?255.0f:0.0f;  
+			output[i*nChannels    ] = 0;
+			output[i*nChannels + 1] = 0;
+	}
+
+}
+
+//--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-	if(key =='h') timeline.toggleShow();
+	if(key =='h') {		
+		timeline.toggleShow();
+		//if(timeline.getIsShowing()) setWindowShape(1600,900); 
+		//else setWindowShape(320,240);
+	}
 }
 
 //--------------------------------------------------------------
@@ -226,7 +268,7 @@ void ofApp::windowResized(int w, int h){
 }
 
 //--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
+ void ofApp::gotMessage(ofMessage msg){
 
 }
 
