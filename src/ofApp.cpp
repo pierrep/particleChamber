@@ -1,10 +1,12 @@
 #include "ofApp.h"
-#include <wiringPi.h>
 
+#ifdef TARGET_RASPBERRY_PI
+#include <wiringPi.h>
 #define RELAY1 0
 #define RELAY2 2
 #define PIR1 1
 #define PIR2 3
+#endif
 
 //--------------------------------------------------------------
 void ofApp::exit()
@@ -40,6 +42,7 @@ void ofApp::setup(){
     numLights = 6;
     numSequences = 4;
     freq = 32;
+    sequence = 3;
 
     ofLogNotice() << "ofxGenericDmx addon version: " << ofxGenericDmx::VERSION_MAJOR << "." << ofxGenericDmx::VERSION_MINOR;
 
@@ -58,54 +61,92 @@ void ofApp::setup(){
     timeline.setLoopType(OF_LOOP_NONE);
 
     ofAddListener(timeline.events().bangFired, this, &ofApp::bangFired);
+    ofAddListener(timeline.events().playbackEnded, this, &ofApp::playBackEnded);
     
+#ifdef TARGET_RASPBERRY_PI
     wiringPiSetup () ;
     pinMode (RELAY1, OUTPUT);
     pinMode (RELAY2, OUTPUT);
-    
     pinMode(PIR1,INPUT);
     pinMode(PIR2,INPUT);
+#endif
+}
+
+//--------------------------------------------------------------
+void ofApp::playBackEnded(ofxTLPlaybackEventArgs& args) {
+    cout << "Playback ended" << endl;
+
+    int newseq = 0;
+    while(newseq != sequence) {
+        newseq = ofRandom(1,numSequences + 1);
+    }
+
+    sequence = newseq;
+
+    cout << "New sequence = " << sequence << endl;
 }
 
 //--------------------------------------------------------------
 void ofApp::bangFired(ofxTLBangEventArgs& args){
     ofLogVerbose() << args.track->getName() << " fired: " << args.flag;
 
-    if(args.track->getName() == "SEQ1_STROBE")
-    {
-        freq = stof(args.flag);
-        cout << "freq=" << freq << endl;
+    int seqnum = stoi(args.track->getName().substr(3,1),nullptr);
+    //cout << "seqnum = " << seqnum << endl;
+
+    if(sequence == seqnum) {
+
+        if(args.track->getName() == ("SEQ"+ofToString(sequence)+"_STROBE"))
+        {
+            if(!(args.flag.empty())) {
+                freq = stof(args.flag);
+                cout << "freq=" << freq << endl;
+            }
+        }
+
+        if(args.track->getName() == ("SEQ"+ofToString(sequence)+"_FAN1"))
+        {
+        #ifdef TARGET_RASPBERRY_PI
+            if(args.flag == "ON")
+            {
+                digitalWrite (RELAY1, HIGH);
+            } else {
+                digitalWrite (RELAY1, LOW);
+            }
+        #endif
+        }
+
+         if(args.track->getName() == ("SEQ"+ofToString(sequence)+"_FAN2"))
+        {
+        #ifdef TARGET_RASPBERRY_PI
+            if(args.flag == "ON")
+            {
+                digitalWrite (RELAY2, HIGH);
+            } else {
+                digitalWrite (RELAY2, LOW);
+            }
+        #endif
+        }
+
     }
-    
-    if(args.track->getName() == "SEQ1_FAN1")
-    {
-		if(args.flag == "ON")
-		{
-			digitalWrite (RELAY1, HIGH);
-		} else {
-			digitalWrite (RELAY1, LOW);
-		}
-	}
-	
-     if(args.track->getName() == "SEQ1_FAN2")
-    {
-		if(args.flag == "ON")
-		{
-			digitalWrite (RELAY2, HIGH);
-		} else {
-			digitalWrite (RELAY2, LOW);
-		}
-	} 	   
 }
 
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
-	int pir1 = digitalRead(PIR1);
-	int pir2 = digitalRead(PIR2);
-	cout << "PIR1 = " << pir1 << endl;
-	cout << "PIR2 = " << pir2 << endl;
+#ifdef TARGET_RASPBERRY_PI
+    pir1 = digitalRead(PIR1);
+    pir2 = digitalRead(PIR2);
+#endif
+
+    //cout << "PIR1 = " << pir1 << endl;
+    //cout << "PIR2 = " << pir2 << endl;
+
+    if((pir1 == 1) || (pir2 == 1)) {
+        if(!(timeline.getIsPlaying())) {
+            timeline.play();
+        }
+    }
 
     int val = sin(((double) ofGetElapsedTimeMillis()/200.0)*(double)freq) > 0 ? 255:0;
 

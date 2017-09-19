@@ -28,6 +28,7 @@ class ofApp : public ofBaseApp{
 
         ofxTimeline timeline;
         void bangFired(ofxTLBangEventArgs& args);
+        void playBackEnded(ofxTLPlaybackEventArgs& args);
 
         //pointer to our Enntec DMX USB Pro object
         DmxDevice* dmxDevice;
@@ -39,6 +40,8 @@ class ofApp : public ofBaseApp{
         int numSequences;
         float freq;
 
+        int pir1, pir2;
+        int sequence;
 
 
 		
