@@ -2,8 +2,8 @@
 
 #ifdef TARGET_RASPBERRY_PI
 #include <wiringPi.h>
-#define RELAY1 0
-#define RELAY2 2
+#define RELAY1 4 //0
+#define RELAY2 5 //2
 #define PIR1 1
 #define PIR2 3
 #endif
