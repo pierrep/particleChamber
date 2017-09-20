@@ -48,14 +48,8 @@ void ofApp::setup(){
             ofLogError() << "DMX device unable to open";
         }
     }
-	
-    numLights = 6;
-    numSequences = 4;
-    freq = 0;
-    lightOutput = 0;
-    sequence = ofRandom(1,numSequences + 1);
-    
-	loadXmlSettings();
+		
+	loadSettings();
 
     timeline.setup();
     timeline.setDurationInSeconds(60*8);
@@ -68,7 +62,7 @@ void ofApp::setup(){
 
     timeline.enableSnapToOtherKeyframes(false);
     timeline.setLoopType(OF_LOOP_NONE);
-    timeline.setSpacebarTogglePlay(true);
+    //timeline.setSpacebarTogglePlay(true);
 
     ofAddListener(timeline.events().bangFired, this, &ofApp::bangFired);
     ofAddListener(timeline.events().playbackEnded, this, &ofApp::playBackEnded);
@@ -162,8 +156,7 @@ void ofApp::update(){
 
 	if(!(timeline.getIsPlaying())) {
 		if((pir1 == 1) || (pir2 == 1)) {
-            int x = 0;
-            //timeline.play();
+            timeline.play();
         } else {
 			lightOutput = 0;
 		}   
@@ -210,8 +203,13 @@ void ofApp::sendDMX()
 }
 
 //--------------------------------------------------------------
-void ofApp::loadXmlSettings()
+void ofApp::loadSettings()
 {
+	numLights = 6;
+    numSequences = 4;
+    freq = 0;
+    lightOutput = 0;
+    
 	if( xml.load("settings.xml") ){
 		ofLogNotice() << "Loaded settings.xml";
 	} else {
@@ -242,7 +240,14 @@ void ofApp::loadXmlSettings()
         strobeVal[3] = 220;
     }
 
-cout << "strobeVal:" << strobeVal[0] << " " << strobeVal[1] << " " << strobeVal[2] << " " << strobeVal[3] << " " << endl;
+    if(xml.exists("//STARTSEQUENCE")) {
+        sequence = xml.getValue<int>("//STARTSEQUENCE");
+    } else {
+        sequence = 1;		
+    }
+    //ofRandom(1,numSequences + 1);        
+    sequence = 1;
+	//cout << "strobeVal:" << strobeVal[0] << " " << strobeVal[1] << " " << strobeVal[2] << " " << strobeVal[3] << " " << endl;
 }
 
 //--------------------------------------------------------------

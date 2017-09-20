@@ -30,7 +30,7 @@ class ofApp : public ofBaseApp{
         void bangFired(ofxTLBangEventArgs& args);
         void playBackEnded(ofxTLPlaybackEventArgs& args);
 		void sendDMX();
-		void loadXmlSettings();
+		void loadSettings();
 
         //pointer to our Enntec DMX USB Pro object
         DmxDevice* dmxDevice;
